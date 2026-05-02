@@ -3,8 +3,9 @@ const port = process.env.PORT || 8080;
 const wss = new WebSocket.Server({ port });
 
 wss.on('connection', (ws) => {
+    console.log("Client connected");
     ws.on('message', (data) => {
-        // Send the message back to EVERYONE else
+        // Broadcast to everyone else
         wss.clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
                 client.send(data);
@@ -12,4 +13,5 @@ wss.on('connection', (ws) => {
         });
     });
 });
-console.log(`Relay live on port ${port}`);
+
+console.log(`Relay active on port ${port}`);
