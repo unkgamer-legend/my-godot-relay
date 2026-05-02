@@ -1,9 +1,10 @@
 const WebSocket = require('ws');
+// Render tells us which port to use through process.env.PORT
 const port = process.env.PORT || 10000;
 
 const wss = new WebSocket.Server({ 
     port: port,
-    host: '0.0.0.0',
+    host: '0.0.0.0', // CRITICAL: This allows external connections
     handleProtocols: (protocols) => {
         return protocols.values().next().value || "";
     }
@@ -12,20 +13,12 @@ const wss = new WebSocket.Server({
 wss.on('connection', (ws) => {
     console.log("HANDSHAKE FORCED - Connection Verified");
 
-    ws.on('message', (message) => {
+    ws.on('message', (data) => {
         wss.clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(message);
+                client.send(data);
             }
         });
-    });
-    const timer = setInterval(() => {
-        if (ws.readyState === WebSocket.OPEN) ws.ping();
-    }, 20000);
-
-    ws.on('close', () => {
-        clearInterval(timer);
-        console.log("Client disconnected");
     });
 });
 
