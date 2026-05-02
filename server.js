@@ -3,8 +3,8 @@ const port = process.env.PORT || 10000;
 
 const wss = new WebSocket.Server({ 
     port,
-    handleProtocols: (protocols) => {
-        return 'binary'; 
+    handleProtocols: (protocols, request) => {
+        return protocols.values().next().value || "";
     }
 });
 
