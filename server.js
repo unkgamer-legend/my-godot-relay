@@ -18,7 +18,7 @@ server.on('upgrade', (request, socket, head) => {
 
 wss.on('connection', (ws, req) => {
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log(`[Connect] Client joined from IP: ${clientIp}`);
+    console.log(`[Connect] Client joined from IPs: ${clientIp}`);
 
     ws.on('message', (data) => {
         const bytesReceived = data.length;
