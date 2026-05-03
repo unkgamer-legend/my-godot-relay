@@ -1,18 +1,16 @@
 const WebSocket = require('ws');
-// Render tells us which port to use through process.env.PORT
-const port = process.env.PORT || 10000;
+const http = require('http');
 
-const wss = new WebSocket.Server({ 
-    port: port,
-    host: '0.0.0.0', // CRITICAL: This allows external connections
-    handleProtocols: (protocols) => {
-        return protocols.values().next().value || "";
-    }
+const port = process.env.PORT || 10000;
+const server = http.createServer((req, res) => {
+    res.writeHead(200);
+    res.end("Relay is Running"); // This keeps Render happy
 });
 
-wss.on('connection', (ws) => {
-    console.log("HANDSHAKE FORCED - Connection Verified");
+const wss = new WebSocket.Server({ server });
 
+wss.on('connection', (ws) => {
+    console.log("CLIENT JOINED");
     ws.on('message', (data) => {
         wss.clients.forEach((client) => {
             if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -22,4 +20,6 @@ wss.on('connection', (ws) => {
     });
 });
 
-console.log(`Relay active on port ${port}`);
+server.listen(port, "0.0.0.0", () => {
+    console.log(`Server listening on port ${port}`);
+});
