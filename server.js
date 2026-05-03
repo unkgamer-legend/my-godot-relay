@@ -1,41 +1,22 @@
 const WebSocket = require('ws');
-const http = require('http');
 
+// CRITICAL: Render tells your app which port to use via "process.env.PORT"
+// If it's not there, it defaults to 8080 (for local testing)
 const port = process.env.PORT || 8080;
 
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Game Server is running and listening for connections.');
+// Create the server
+const wss = new WebSocket.Server({ port: port }, () => {
+    console.log(`Server is running on port ${port}`);
 });
 
-const wss = new WebSocket.Server({ noServer: true });
+wss.on('connection', (ws) => {
+    console.log('A player connected from the cloud!');
 
-server.on('upgrade', (request, socket, head) => {
-    wss.handleUpgrade(request, socket, head, (ws) => {
-        wss.emit('connection', ws, request);
-    });
-});
-
-wss.on('connection', (ws, req) => {
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log(`[Connect] Client joined from IPs: ${clientIp}`);
-
-    ws.on('message', (data) => {
-        const bytesReceived = data.length;
-        console.log(`[Bandwidth] Received ${bytesReceived} bytes from ${clientIp}`);
-
-        wss.clients.forEach((client) => {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(data);
-            }
-        });
+    ws.on('message', (message) => {
+        console.log('Received:', message.toString());
+        // Simple echo for testing
+        ws.send("Server received: " + message.toString());
     });
 
-    ws.on('close', () => {
-        console.log(`[Disconnect] Client left from IP: ${clientIp}`);
-    });
-});
-
-server.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+    ws.on('close', () => console.log('Player disconnected'));
 });
