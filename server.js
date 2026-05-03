@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 // CRITICAL: Render tells your app which port to use via "process.env.PORT"
 // If it's not there, it defaults to 8080 (for local testing)
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 10000;
 
 // Create the server
 const wss = new WebSocket.Server({ port: port }, () => {
